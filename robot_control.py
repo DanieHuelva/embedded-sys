@@ -51,6 +51,8 @@ class RobotControl:
 
     WAIST_MIN = 1200
     WAIST_MAX = 1800
+    WAIST_TRIM_US = 100  # tune this: negative = counter-clockwise, positive = clockwise
+
 
     def __init__(self, maestro_port="/dev/ttyACM0", baud=9600):
         self._lock = threading.Lock()
@@ -121,6 +123,7 @@ class RobotControl:
             self.maestro.set_target_us(self.CH_RIGHT_WHEEL, self.SERVO_CENTER)
             self.maestro.set_target_us(self.CH_HEAD_TILT, self.SERVO_CENTER)
             self.maestro.set_target_us(self.CH_HEAD_PAN, self.SERVO_CENTER)
+            self.maestro.set_target_us(self.CH_WAIST, self.SERVO_CENTER + self.WAIST_TRIM_US)
             self.maestro.set_target_us(self.CH_WAIST, self.SERVO_CENTER)  # ✅ center waist on stop
 
     def set_head_pan(self, v: float):
@@ -135,6 +138,7 @@ class RobotControl:
 
     def set_waist(self, v: float):
         us = self._map_norm_to_us(float(v), self.WAIST_MIN, self.WAIST_MAX)
+        us += self.WAIST_TRIM_US
         with self._lock:
             self.maestro.set_target_us(self.CH_WAIST, us)
 
