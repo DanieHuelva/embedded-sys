@@ -1,0 +1,76 @@
+Maestro Servo Channel Map
+Mini Maestro 18-Channel Servo Controller
+
+Channel 0:
+  Wheels – forward motion (drive)
+  This channel controls the robot’s wheel movement.
+  Observed forward/backward motion when tested.
+
+Channel 1:
+  Unused
+  No movement observed during testing.
+  Channel is not connected or not configured.
+
+Channel 2:
+  Waist rotation
+  Controls rotation of the robot’s waist.
+
+Channel 3:
+  Head tilt
+  Controls up/down movement of the robot’s head.
+
+Channel 4:
+  Head pan
+  Controls left/right movement of the robot’s head.
+
+Channel 5:
+  Right arm – vertical (shoulder)
+  Controls vertical movement of the right arm.
+
+Channel 6:
+  Right arm – horizontal
+  Controls horizontal movement of the right arm.
+
+Channel 7:
+  Right arm – joint 3 (vertical)
+  Controls vertical movement of the third joint on the right arm.
+
+Channel 8:
+  Right arm – joint 4 (vertical)
+  Controls vertical movement of the fourth joint on the right arm.
+
+Channel 9:
+  Right hand – twist
+  Controls rotational twisting of the right hand.
+
+Channel 10:
+  Right hand – grab
+  Controls opening and closing of the right hand.
+
+Channel 11:
+  Left arm – joint 1 (vertical)
+  Controls vertical movement of the first joint on the left arm.
+
+Channel 12:
+  Left arm – joint 2 (horizontal)
+  Controls horizontal movement of the second joint on the left arm.
+
+Channel 13:
+  Left arm – joint 3 (vertical)
+  Controls vertical movement of the third joint on the left arm.
+
+Channel 14:
+  Left arm – joint 4 (vertical)
+  Controls vertical movement of the fourth joint on the left arm.
+
+Channel 15:
+  Left hand – twist
+  Controls rotational twisting of the left hand.
+
+Channel 16:
+  Left hand – grab
+  Controls opening and closing of the left hand.
+
+Channel 17:
+  Unused
+  No servo connected to this channel.

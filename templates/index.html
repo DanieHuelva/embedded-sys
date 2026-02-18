@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Robot Control</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>Robot Web Control</h1>
+
+      <div class="card">
+        <h2>Drive Control (Joystick)</h2>
+        <p>Drag the joystick with mouse or touch. Controls left/right wheels proportionally.</p>
+
+        <div id="joyArea">
+          <div id="joyBase">
+            <div id="joyStick"></div>
+          </div>
+        </div>
+
+        <div class="row small">
+          <div>joy_x: <span id="jx">0.00</span></div>
+          <div>joy_y: <span id="jy">0.00</span></div>
+          <div>left: <span id="lval">0.00</span></div>
+          <div>right: <span id="rval">0.00</span></div>
+        </div>
+
+        <div class="row">
+          <button id="stopBtn">STOP</button>
+          <span id="status"></span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Head + Waist Control</h2>
+
+        <div class="controlRow">
+          <label for="headTilt">Head Tilt</label>
+          <input id="headTilt" type="range" min="-1" max="1" value="0" step="0.01" />
+          <button class="neutralBtn" data-target="headTilt">Neutral</button>
+        </div>
+
+        <div class="controlRow">
+          <label for="headPan">Head Pan</label>
+          <input id="headPan" type="range" min="-1" max="1" value="0" step="0.01" />
+          <button class="neutralBtn" data-target="headPan">Neutral</button>
+        </div>
+
+        <div class="controlRow">
+          <label for="waist">Waist</label>
+          <input id="waist" type="range" min="-1" max="1" value="0" step="0.01" />
+          <button class="neutralBtn" data-target="waist">Neutral</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Voice Output</h2>
+        <p>Click a phrase button (robot speaks from the Pi).</p>
+        <div class="row wrapBtns">
+          <button class="say" data-key="p1">Hello, Hunter.</button>
+          <button class="say" data-key="p2">Hunter is so cool.</button>
+          <button class="say" data-key="p3">Please do not touch my wheels.</button>
+          <button class="say" data-key="p4">Hunter is the greatest.</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>
