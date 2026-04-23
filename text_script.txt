@@ -1,0 +1,138 @@
+# ============================================================
+# CSCI 455 Project 2 Test Script
+# Purpose: One script that exercises every required feature:
+# - comments, blank lines, whitespace tolerance
+# - ~definitions
+# - [] choices in patterns and outputs (including quoted phrases)
+# - variable capture with _ and $var recall
+# - nested scopes u, u1, u2, ...
+# - action tags: <head_yes> <head_no> <arm_raise> <dance90>
+# - multiple action tags in one output
+# - unknown action tag (must warn and ignore)
+# - deliberate syntax errors (must report line number and skip)
+# ============================================================
+
+# -----------------------------
+# Definitions
+# -----------------------------
+~greet: [hello hi howdy "hi there" "hey robot"]
+~bye: [bye goodbye "see ya" later]
+~affirm: [yes yeah yep sure "of course"]
+~deny: [no nope nah "no way"]
+~thanks: [thanks "thank you" thx]
+~dance_words: [dance boogie "do a dance" "dance for me"]
+~arm_words: [arm wave "raise your arm" "raise arm" "wave at me"]
+~whoami: ["what is my name" "do you remember my name" "who am i"]
+~howold: ["how old am i" "what is my age"]
+
+# -----------------------------
+# Global safety / control words
+# These do not move the robot by themselves, but you can map them
+# to your safety interrupt behavior in your engine.
+# -----------------------------
+u:([stop cancel reset quit]): OK. Stopping now.
+
+# -----------------------------
+# Greeting with output choice list + action tag
+# -----------------------------
+u:(~greet): [hi hello "what up" sup] <arm_raise>
+
+    # Scope test: after greeting, u1 rules become active
+    u1:(~affirm): Great! <head_yes>
+    u1:(~deny): No worries. <head_no>
+
+    # Quoted phrase match test
+    u1:("hi there"): Hey, you said the special greeting. <arm_raise>
+
+    # Multiple actions in one output
+    u1:(you are awesome): Thanks! <head_yes> <arm_raise>
+
+    # Deliberate spacing weirdness
+    u1:   (   and   )   :   and-and-and! <head_yes>
+
+# -----------------------------
+# Variable capture and recall
+# -----------------------------
+u:(my name is _): Nice to meet you, $name. <head_yes>
+u:(i am _ years old): Got it. You are $age years old. <head_yes>
+
+# Recall variables
+u:(~whoami): Your name is $name.
+u:(~howold): You are $age years old.
+
+# If variables were never set, engine must speak "I don't know" for that variable
+u:(what is my favorite color): Your favorite color is $color.
+
+# -----------------------------
+# Required movement triggers as direct commands
+# -----------------------------
+u:(~affirm): [nice okay] <head_yes>
+u:(~deny): [okay got it] <head_no>
+u:(~arm_words): [ok sure] <arm_raise>
+u:(~dance_words): [party time "here we go"] <dance90>
+
+# -----------------------------
+# Mixed text + action + output choice list
+# -----------------------------
+u:(tell me something cool): [Robots are fun "CS is magic" "I like snacks"] <head_yes>
+
+# Unknown action should log warning and ignore
+u:(do the secret move): Absolutely. <moonwalk>
+
+# -----------------------------
+# Nested scope depth test (u -> u1 -> u2)
+# -----------------------------
+u:(let us talk): Sure. Ask me a question.
+
+    u1:(are you happy): [yes "mostly yes"] <head_yes>
+    u1:(are you sad): [no "not today"] <head_no>
+
+        # This u2 only becomes active after u1:(are you sad) matches
+        u2:(why): Because I am a robot. <arm_raise>
+
+    u1:(do you like homework): [no nope] <head_no>
+
+# -----------------------------
+# Definition usage inside output
+# (Engine should expand ~greet inside output to a choice and pick one)
+# -----------------------------
+u:(say hello): ~greet <arm_raise>
+
+# -----------------------------
+# Bracket choices inside pattern with quoted phrase
+# -----------------------------
+u:([robot "cool robot" friend]): I heard you. <head_yes>
+
+# -----------------------------
+# Thanks and goodbye
+# -----------------------------
+u:(~thanks): You are welcome. <head_yes>
+u:(~bye): Goodbye! <arm_raise>
+
+# ============================================================
+# Deliberate syntax errors (engine must report and skip)
+# ============================================================
+
+# Missing second colon delimiter
+u:(this is an error) error here
+
+# Unbalanced brackets
+u:(bad bracket): [one two three <head_yes>
+
+# Bad definition line (missing colon)
+~broken_definition [a b c]
+
+# ============================================================
+# Optional: max nesting depth stress (should be blocked by your guard)
+# This section is intentionally deep. If you enforce max depth 6,
+# you should log an error and reset safely if it activates too deep.
+# ============================================================
+
+u:(deep test): entering depth 1
+    u1:(go deeper): depth 2
+        u2:(go deeper): depth 3
+            u3:(go deeper): depth 4
+                u4:(go deeper): depth 5
+                    u5:(go deeper): depth 6
+                        u6:(go deeper): depth 7 SHOULD NOT ACTIVATE
+                            u7:(go deeper): depth 8 REALLY SHOULD NOT ACTIVATE

@@ -17,7 +17,6 @@ let lastSent = 0;
 let joyX = 0;
 let joyY = 0;
 
-// one animation per slider id
 const neutralTimers = new Map();
 
 async function postJSON(url, data) {
@@ -33,12 +32,19 @@ function clamp(x, lo, hi) {
   return Math.max(lo, Math.min(hi, x));
 }
 
+// Match backend robot_control.py drive_joystick() exactly
 function arcadeToWheels(x, y) {
-  let left = y + x;
-  let right = y - x;
+  const angle = -45 * Math.PI / 180;
+  const xRot = x * Math.cos(angle) - y * Math.sin(angle);
+  const yRot = x * Math.sin(angle) + y * Math.cos(angle);
+
+  let left = yRot + xRot;
+  let right = yRot - xRot;
+
   const m = Math.max(1, Math.abs(left), Math.abs(right));
   left /= m;
   right /= m;
+
   return { left, right };
 }
 
@@ -52,7 +58,7 @@ function updateReadout() {
 
 async function sendControl(payload) {
   const now = Date.now();
-  if (now - lastSent < 50) return; // ~20Hz
+  if (now - lastSent < 50) return;
   lastSent = now;
 
   try {
@@ -63,9 +69,8 @@ async function sendControl(payload) {
   }
 }
 
-// ----- Joystick handling -----
 const baseRect = () => joyBase.getBoundingClientRect();
-const baseRadius = 240 / 2; // must match CSS
+const baseRadius = 240 / 2;
 const stickRadius = 80 / 2;
 
 function setStickPosition(px, py) {
@@ -124,7 +129,6 @@ joyBase.addEventListener("pointercancel", () => {
   resetStick();
 });
 
-// ----- Head + Waist sliders -----
 function sendHeadWaist() {
   sendControl({
     head_pan: parseFloat(headPanEl.value),
@@ -137,10 +141,12 @@ headPanEl.addEventListener("input", () => {
   cancelNeutral("headPan");
   sendHeadWaist();
 });
+
 headTiltEl.addEventListener("input", () => {
   cancelNeutral("headTilt");
   sendHeadWaist();
 });
+
 waistEl.addEventListener("input", () => {
   cancelNeutral("waist");
   sendHeadWaist();
@@ -154,9 +160,6 @@ function cancelNeutral(id) {
   }
 }
 
-// Smoothly move a slider to 0 over time, sending updates as it moves.
-// stepPerTick: how much value changes each tick (0.02 is gentle)
-// tickMs: how often to step (20ms = 50Hz-ish; we also throttle sendControl)
 function smoothToNeutral(inputEl, id, stepPerTick = 0.02, tickMs = 20) {
   cancelNeutral(id);
 
@@ -179,7 +182,6 @@ function smoothToNeutral(inputEl, id, stepPerTick = 0.02, tickMs = 20) {
   neutralTimers.set(id, timer);
 }
 
-// Neutral buttons
 document.querySelectorAll(".neutralBtn").forEach((btn) => {
   btn.addEventListener("click", () => {
     const target = btn.getAttribute("data-target");
@@ -189,7 +191,6 @@ document.querySelectorAll(".neutralBtn").forEach((btn) => {
   });
 });
 
-// ----- STOP -----
 stopBtn.addEventListener("click", async () => {
   cancelNeutral("headTilt");
   cancelNeutral("headPan");
@@ -208,7 +209,6 @@ stopBtn.addEventListener("click", async () => {
   }
 });
 
-// ----- Voice buttons -----
 document.querySelectorAll(".say").forEach((btn) => {
   btn.addEventListener("click", async () => {
     const key = btn.getAttribute("data-key");

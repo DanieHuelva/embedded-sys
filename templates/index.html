@@ -5,10 +5,69 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Robot Control</title>
     <link rel="stylesheet" href="/static/style.css" />
+    <style>
+      /* Project 2 dialog additions only — does not override style.css */
+      .dialog-log {
+        height: 160px;
+        overflow-y: auto;
+        background: #0d0d0d;
+        border: 1px solid #2a2a2a;
+        border-radius: 8px;
+        padding: 8px 12px;
+        margin-bottom: 10px;
+        font-size: 0.88rem;
+        line-height: 1.6;
+      }
+      .msg-user  { color: #5aabff; }
+      .msg-robot { color: #7dff7d; font-weight: 600; }
+      .msg-sys   { color: #555; font-style: italic; }
+      .dialog-row { display: flex; gap: 8px; margin-top: 6px; }
+      .dialog-row input {
+        flex: 1;
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 1px solid #333;
+        background: #1b1b1b;
+        color: #eee;
+        font-size: 0.92rem;
+      }
+      .dialog-row input:focus { outline: none; border-color: #5aabff; }
+      .state-badge {
+        display: inline-block;
+        padding: 2px 10px;
+        border-radius: 12px;
+        background: #1f2a38;
+        color: #5aabff;
+        font-size: 0.78rem;
+        font-family: monospace;
+        margin-bottom: 8px;
+      }
+      .action-hint {
+        font-size: 0.78rem;
+        color: #555;
+        margin-top: 5px;
+        min-height: 16px;
+      }
+    </style>
   </head>
   <body>
     <div class="wrap">
       <h1>Robot Web Control</h1>
+
+      <!-- ══ Project 2: Dialog Engine ══ -->
+      <div class="card">
+        <h2>Dialog Engine</h2>
+        <div class="state-badge" id="stateBadge">State: IDLE</div>
+        <div class="dialog-log" id="chatLog"></div>
+        <div class="dialog-row">
+          <input id="dialogInput" type="text"
+                 placeholder="Type something to the robot…"
+                 autocomplete="off" />
+          <button onclick="sendDialog()">Send</button>
+        </div>
+        <div class="action-hint" id="actionHint"></div>
+      </div>
+      <!-- ══ end Project 2 ══ -->
 
       <div class="card">
         <h2>Drive Control (Joystick)</h2>
@@ -65,8 +124,68 @@
           <button class="say" data-key="p4">Hunter is the greatest.</button>
         </div>
       </div>
-    </div>
 
+    </div><!-- end .wrap -->
+
+    <!-- Your original JS — completely unchanged -->
     <script src="/static/app.js"></script>
+
+    <!-- Project 2 dialog logic — self-contained, never touches app.js variables -->
+    <script>
+      const chatLog    = document.getElementById('chatLog');
+      const stateBadge = document.getElementById('stateBadge');
+      const actionHint = document.getElementById('actionHint');
+
+      function appendMsg(text, cls) {
+        const d = document.createElement('div');
+        d.className = cls;
+        d.textContent = text;
+        chatLog.appendChild(d);
+        chatLog.scrollTop = chatLog.scrollHeight;
+      }
+
+      async function sendDialog() {
+        const input = document.getElementById('dialogInput');
+        const text  = input.value.trim();
+        if (!text) return;
+        input.value = '';
+        appendMsg('You: ' + text, 'msg-user');
+
+        try {
+          const res  = await fetch('/api/dialog', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ text })
+          });
+          const data = await res.json();
+
+          if (data.spoken)
+            appendMsg('Robot: ' + data.spoken, 'msg-robot');
+          if (data.actions && data.actions.length)
+            appendMsg('[Actions: ' + data.actions.join(', ') + ']', 'msg-sys');
+
+          actionHint.textContent = (data.actions && data.actions.length)
+            ? '▶ ' + data.actions.join('  ') : '';
+
+          if (data.state) stateBadge.textContent = 'State: ' + data.state;
+
+        } catch (e) {
+          appendMsg('[network error]', 'msg-sys');
+        }
+      }
+
+      document.getElementById('dialogInput').addEventListener('keydown', e => {
+        if (e.key === 'Enter') sendDialog();
+      });
+
+      // Keep state badge live every 2s
+      setInterval(async () => {
+        try {
+          const d = await (await fetch('/api/state')).json();
+          if (d.state) stateBadge.textContent = 'State: ' + d.state;
+        } catch (_) {}
+      }, 2000);
+    </script>
+
   </body>
 </html>

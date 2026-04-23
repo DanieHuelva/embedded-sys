@@ -1,0 +1,212 @@
+# ============================================================
+# CSCI 455 Project 2 — Custom Dialog Script
+# Robot Name: Hunter
+# Features used:
+# - ~definitions
+# - [] choices in patterns and outputs
+# - quoted phrases
+# - variable capture with _ and $var recall
+# - nested scopes u, u1, u2
+# - action tags: <head_yes> <head_no> <arm_raise> <dance90>
+# - multiple action tags in one output
+# - unknown action tag (warn and ignore)
+# - deliberate syntax errors
+# ============================================================
+
+# -----------------------------
+# Definitions
+# -----------------------------
+~greet: [hello hi "hey hunter" "good morning" "what is up"]
+~bye: [bye goodbye "see you later" "take care" "gotta go"]
+~affirm: [yes yeah yep sure "of course" absolutely]
+~deny: [no nope nah "no thanks" "not really"]
+~thanks: [thanks "thank you" "appreciate it" thx]
+~food: [pizza tacos sushi "grilled cheese" ramen]
+~color: [red blue green yellow purple orange]
+~sports: [basketball soccer football baseball tennis]
+~music: [jazz rock "hip hop" classical pop]
+~compliment: ["you are great" "you are awesome" "good job" "well done"]
+
+# -----------------------------
+# Safety / control words
+# -----------------------------
+u:([stop cancel reset quit]): Stopping everything now.
+
+# -----------------------------
+# Greetings
+# -----------------------------
+u:(~greet): [Hey there! "Hello human!" "Hi! Good to see you."] <arm_raise>
+
+    u1:(~affirm): Glad you are here. <head_yes>
+    u1:(~deny): That is okay. <head_no>
+    u1:(how are you): I am doing great, thanks for asking! <head_yes>
+    u1:("what can you do"): I can move my head, dance, and have a conversation!
+
+# -----------------------------
+# Asking Hunter's name
+# -----------------------------
+u:(what is your name): My name is Hunter. <head_yes>
+u:(do you have a name): Yes, my name is Hunter! <arm_raise>
+
+# -----------------------------
+# Variable capture — user name
+# -----------------------------
+u:(my name is _): Nice to meet you, $name! <head_yes>
+u:(call me _): Got it, I will call you $name. <head_yes>
+u:(i go by _): Great nickname! I will remember that, $name. <head_yes>
+
+# Recall name
+u:(do you know my name): Your name is $name. <head_yes>
+u:(what is my name): I believe your name is $name.
+u:(who am i): You told me your name is $name.
+
+# -----------------------------
+# Variable capture — age
+# -----------------------------
+u:(i am _ years old): Wow, $age years old! That is cool. <head_yes>
+u:(my age is _): So you are $age years old. Good to know!
+u:(how old am i): You are $age years old.
+
+# -----------------------------
+# Food conversation
+# -----------------------------
+u:(do you like food): I love talking about food! What is your favorite?
+
+    u1:(my favorite food is _): $food sounds delicious! <head_yes>
+    u1:(i like _): Oh nice, $food is a great choice! <head_yes>
+    u1:(~food): Great taste! I wish I could eat. <head_yes>
+    u1:(i do not like food): That is unusual but okay. <head_no>
+
+# -----------------------------
+# Favorite color
+# -----------------------------
+u:(what is your favorite color): I think I like blue, like the sky!
+u:(my favorite color is _): $color is a wonderful color! <head_yes>
+u:(~color is my favorite): Great choice! <head_yes>
+
+# -----------------------------
+# Sports conversation
+# -----------------------------
+u:(do you like sports): I enjoy watching sports! Do you play any?
+
+    u1:(i play _): $sports is a fun sport! How long have you played? <head_yes>
+
+        u2:(for _ years): $age years is impressive! <head_yes>
+        u2:(since i was _): Wow, you started young at age $age! <head_yes>
+        u2:(not that long): No worries, practice makes perfect! <head_yes>
+
+    u1:(i do not play sports): That is okay, not everyone has to play sports. <head_no>
+    u1:(~sports): That is a great sport to follow! <head_yes>
+
+# -----------------------------
+# Music conversation
+# -----------------------------
+u:(do you like music): Music is wonderful! What kind do you like?
+
+    u1:(i like _ music): $music is a great genre! <head_yes>
+    u1:(~music): Excellent taste in music! <head_yes>
+    u1:(i do not like music): That is surprising but I respect it. <head_no>
+
+# -----------------------------
+# Compliments
+# -----------------------------
+u:(~compliment): Aw thank you so much! <head_yes> <arm_raise>
+u:(you are the best): That is so kind of you to say! <head_yes> <dance90>
+u:(i love you hunter): I love you too, human! <head_yes> <arm_raise>
+
+# -----------------------------
+# Ask Hunter to dance
+# -----------------------------
+u:([dance "dance for me" "show me a dance" "do a dance"]): OK here we go! <dance90>
+u:(do you know how to dance): Watch this! <dance90>
+
+# -----------------------------
+# Ask Hunter to wave
+# -----------------------------
+u:([wave "wave at me" "say hi" "raise your arm"]): [Sure! "Here you go!" "Watch me!"] <arm_raise>
+
+# -----------------------------
+# Yes and No responses
+# -----------------------------
+u:(~affirm): [Awesome! "Sounds good!" "Great!"] <head_yes>
+u:(~deny): [OK. "No problem." "That is fine."] <head_no>
+
+# -----------------------------
+# Jokes
+# -----------------------------
+u:(tell me a joke): Why did the robot go to school? To improve its language skills! <head_yes>
+u:(another joke): What do you call a robot who likes to garden? A botany bot! <head_yes>
+u:(do you know any jokes): Of course! Just ask me to tell you one. <head_yes>
+
+# -----------------------------
+# Weather small talk
+# -----------------------------
+u:(how is the weather): I cannot check the weather but I hope it is nice outside! <head_yes>
+u:(is it going to rain): I am a robot, not a meteorologist. But bring an umbrella just in case! <head_no>
+
+# -----------------------------
+# School / homework
+# -----------------------------
+u:(do you like school): Learning is important! Do you like school?
+
+    u1:(~affirm): That is great to hear! Keep it up. <head_yes>
+    u1:(~deny): School can be tough sometimes. <head_no>
+    u1:(it is okay): Fair enough, school has its ups and downs. <head_yes>
+
+u:(i have homework): Good luck with your homework! You got this. <arm_raise>
+u:(i finished my homework): Nice work! Now you can relax. <head_yes> <dance90>
+
+# -----------------------------
+# Feelings
+# -----------------------------
+u:(i am happy): That makes me happy too! <head_yes> <dance90>
+u:(i am sad): I am sorry to hear that. I hope things get better. <head_no>
+u:(i am tired): Maybe you should take a break and rest. <head_no>
+u:(i am bored): Let us have a conversation then! Ask me anything. <arm_raise>
+u:(i am excited): That energy is contagious! <head_yes> <dance90>
+
+# -----------------------------
+# Trivia
+# -----------------------------
+u:(ask me a question): OK! What planet is closest to the sun?
+
+    u1:(mercury): Correct! Mercury is the closest planet to the sun. <head_yes> <arm_raise>
+    u1:([mars venus earth]): Not quite. The answer is Mercury! <head_no>
+    u1:(i do not know): That is okay! The answer is Mercury. <head_yes>
+
+# -----------------------------
+# Thanks and goodbye
+# -----------------------------
+u:(~thanks): You are very welcome! <head_yes>
+u:(~bye): Goodbye! It was nice talking to you. <arm_raise>
+
+# ============================================================
+# Deliberate syntax errors (engine must report and skip)
+# ============================================================
+
+# Missing second colon
+u:(this line has no second colon) it should be skipped
+
+# Unbalanced bracket in output
+u:(bad output test): [one two three <head_yes>
+
+# Bad definition syntax
+~broken [x y z]
+
+# ============================================================
+# Unknown action tag test
+# ============================================================
+u:(do something crazy): Sure, watch this! <backflip>
+
+# ============================================================
+# Deep nesting stress test
+# ============================================================
+u:(lets go deep): Level 1 here.
+    u1:(deeper): Level 2.
+        u2:(deeper): Level 3.
+            u3:(deeper): Level 4.
+                u4:(deeper): Level 5.
+                    u5:(deeper): Level 6.
+                        u6:(deeper): Level 7 — should not activate.
+                            u7:(deeper): Level 8 — really should not activate.
+
